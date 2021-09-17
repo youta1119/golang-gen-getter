@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/youta1119/golang-gen-getter/internal/generator"
 	"go/types"
+	"reflect"
 )
 
 func GenerateGetter(typeName string, sourceDirs []string) ([]byte, error) {
@@ -23,10 +24,18 @@ func GenerateGetter(typeName string, sourceDirs []string) ([]byte, error) {
 
 	fields := make([]*generator.Field, 0, len(st.Fields.List))
 	for _, field := range st.Fields.List {
-		fields = append(fields, &generator.Field{
-			Name:     field.Names[0].Name,
-			TypeName: types.ExprString(field.Type),
-		})
+		shouldIgnore := false
+		if field.Tag != nil && len(field.Tag.Value) >= 1 {
+			customTag := reflect.StructTag(field.Tag.Value[1 : len(field.Tag.Value)-1])
+			shouldIgnore = customTag.Get("getter") == "-"
+		}
+
+		if !shouldIgnore {
+			fields = append(fields, &generator.Field{
+				Name:     field.Names[0].Name,
+				TypeName: types.ExprString(field.Type),
+			})
+		}
 	}
 	gen := generator.GetterGenerator{
 		PkgName:  pkg.Name,

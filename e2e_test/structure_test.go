@@ -10,6 +10,7 @@ import (
 func TestStructureGetter(t *testing.T) {
 	s := e2e_test.NewStructure(
 		"id",
+		1,
 		&other.Other{
 			Foo: "other",
 			Bar: "bar",

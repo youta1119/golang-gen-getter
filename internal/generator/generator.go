@@ -9,9 +9,10 @@ import (
 )
 
 type GetterGenerator struct {
-	PkgName  string
-	TypeName string
-	Fields   []*Field
+	PkgName      string
+	TypeName     string
+	Fields       []*Field
+	GetterPrefix bool
 }
 
 type Field struct {
@@ -22,18 +23,22 @@ type Field struct {
 func (g *GetterGenerator) Generate() ([]byte, error) {
 	f := jen.NewFile(g.PkgName)
 	receiverName := strings.ToLower(string(g.TypeName[0]))
+
+	prefix := ""
+	if g.GetterPrefix {
+		prefix = "Get"
+	}
 	for _, field := range g.Fields {
 		f.Func().
 			Params(jen.Id(receiverName).Op("*").Id(g.TypeName)). // receiver
-			Id(formatGetterName(field.Name)). // function name
+			Id(prefix + formatGetterName(field.Name)). // function name
 			Params().
 			Id(field.TypeName). // return type
 			Block(jen.Return(jen.Id(receiverName).Dot(field.Name))) //function block
 	}
 
 	buf := &bytes.Buffer{}
-	err := f.Render(buf)
-	if err != nil {
+	if err := f.Render(buf); err != nil {
 		return nil, fmt.Errorf("failed to generate code: %w", err)
 	}
 	return buf.Bytes(), nil
