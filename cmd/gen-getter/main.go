@@ -13,8 +13,10 @@ import (
 	"strings"
 )
 
+const cliName = "golang-gen-getter"
 var (
 	typeName = flag.String("type", "", "[required] struct type name")
+	getterPrefix = flag.Bool("getterPrefix", false, "[optional]  if true, add 'Get' prefix into the getter's name.")
 )
 
 func main() {
@@ -40,7 +42,7 @@ func main() {
 		dir = filepath.Dir(args[0])
 	}
 	outputName := filepath.Join(dir, strings.ToLower(fmt.Sprintf("%s_getter_gen.go", *typeName)))
-	src, err := internal.GenerateGetter(*typeName, args)
+	src, err := internal.GenerateGetter(*typeName, args, *getterPrefix)
 	if err != nil {
 		log.Fatalf("[error]failed to getenete getter: %v", err)
 	}

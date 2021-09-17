@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-func GenerateGetter(typeName string, sourceDirs []string) ([]byte, error) {
+func GenerateGetter(typeName string, sourceDirs []string, getterPrefix bool) ([]byte, error) {
 	pkg, err := parsePackage(sourceDirs)
 	if err != nil {
 		return nil, err
@@ -41,6 +41,7 @@ func GenerateGetter(typeName string, sourceDirs []string) ([]byte, error) {
 		PkgName:  pkg.Name,
 		TypeName: typeName,
 		Fields:   fields,
+		GetterPrefix: getterPrefix,
 	}
 	return gen.Generate()
 }
